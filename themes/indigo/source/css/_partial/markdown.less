@@ -1,0 +1,99 @@
+// Markdown 正文排版增强
+// 在 indigo 原始 article.less 基础上补齐风格化细节
+.post-content {
+    // 标题层级：保留锚点偏移，同时增强视觉层次
+    h2 {
+        position: relative;
+        margin-top: 8px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid @lightPrimaryColor;
+    }
+
+    h3 {
+        padding-left: 12px;
+        border-left: 4px solid @lightPrimaryColor;
+    }
+
+    h4,
+    h5,
+    h6 {
+        font-weight: 600;
+    }
+
+    // 列表
+    ul,
+    ol {
+        padding-left: 2em;
+    }
+
+    ul {
+        list-style: disc;
+
+        ul {
+            list-style: circle;
+        }
+    }
+
+    ol {
+        list-style: decimal;
+
+        ol {
+            list-style: lower-alpha;
+        }
+    }
+
+    li {
+        margin: 4px 0;
+
+        >ul,
+        >ol {
+            margin-bottom: 0;
+        }
+    }
+
+    // 分隔线
+    hr {
+        margin: 28px 0;
+        border: none;
+        border-top: 1px dashed #ccc;
+    }
+
+    // 删除线 / 键盘键位
+    del {
+        color: #aaa;
+    }
+
+    kbd {
+        display: inline-block;
+        margin: 0 4px;
+        padding: 2px 6px;
+        font-size: 80%;
+        line-height: 1;
+        color: #555;
+        background: #f7f7f7;
+        border: 1px solid #ccc;
+        border-bottom-width: 2px;
+        border-radius: 3px;
+        box-shadow: 0 1px 0 rgba(0, 0, 0, .08);
+    }
+
+    // 图片自适应
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    // 表格：直子孙表格横向滚动，避免移动端溢出
+    >table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    // MathJax 3 (SVG 输出) 公式容器溢出保护
+    mjx-container {
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+}
