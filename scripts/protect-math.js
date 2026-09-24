@@ -31,9 +31,15 @@ function restore(content) {
 }
 
 hexo.extend.filter.register('before_post_render', function (data) {
+  // 渲染管线中原始 markdown 位于 data.content
+  const src = data.content || ''
   data.content = protect(data.content)
+  const tokens = (data.content.match(/@@MJX:/g) || []).length
+  if (tokens > 0) console.log(`[protect] ${data.source} len=${src.length} tokens=${tokens}`)
 })
 
 hexo.extend.filter.register('after_post_render', function (data) {
+  const left = (data.content.match(/@@MJX:/g) || []).length
   data.content = restore(data.content)
+  if (left > 0) console.log(`[restore] ${data.source} left_tokens=${left}`)
 })
