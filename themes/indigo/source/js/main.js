@@ -251,14 +251,30 @@
             }
 
             function flash(btn, text) {
-                if (!btn) return;
+                // 按钮 tooltip 同步更新（悬停时能看到）
                 var orig = btn.getAttribute('data-title') || '';
                 btn.setAttribute('data-title', text);
                 btn.classList.add('copy-flash');
                 setTimeout(function () {
                     btn.setAttribute('data-title', orig);
                     btn.classList.remove('copy-flash');
-                }, 1500);
+                }, 2000);
+
+                // 页面顶部浮起一个 toast 提示（主要反馈方式）
+                var toast = d.createElement('div');
+                toast.className = 'copy-toast ' + (text === '已复制链接' ? 'copy-toast-success' : 'copy-toast-fail');
+                toast.textContent = text;
+                body.appendChild(toast);
+                // 下一帧加 .in 触发过渡动画
+                requestAnimationFrame(function () {
+                    toast.classList.add('in');
+                });
+                setTimeout(function () {
+                    toast.classList.remove('in');
+                    toast.addEventListener('transitionend', function () {
+                        if (toast.parentNode) body.removeChild(toast);
+                    });
+                }, 2000);
             }
 
             shareTargets.forEach(function (btn) {
