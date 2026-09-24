@@ -1,6 +1,7 @@
 ---
 title: 机器学习全景：从经典算法到工程实践
 date: 2026-09-24 14:17:20
+categories: [机器学习]
 tags: [机器学习, Scikit-learn, 数据科学]
 ---
 
