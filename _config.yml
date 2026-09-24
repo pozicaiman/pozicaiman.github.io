@@ -106,7 +106,10 @@ search:
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
+## 用 gh-pages 分支承载静态站点，master 分支保留 Hexo 源码
 deploy:
   type: git
-  repo: https://gitee.com/pozicaiman/pozicaiman.git  # 替换为你的真实SSH地址
-  branch: master  # Gitee 默认分支通常是 master，如果是 main 请改为 main
+  repo: https://gitee.com/pozicaiman/pozicaiman.git
+  branch: master
+  ignore_hidden: false
+  message: "Site updated: {{ now('YYYY-MM-DD HH:mm:ss') }}"
