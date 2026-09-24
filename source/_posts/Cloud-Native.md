@@ -1,7 +1,8 @@
 ---
 title: Cloud-Native
 date: 2026-09-24 15:19:31
-tags:
+categories: [云原生]
+tags: [云原生, Kubernetes, Docker, 微服务, DevOps]
 ---
 
 ## 1. 云原生定义

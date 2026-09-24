@@ -110,16 +110,24 @@
                 headerH = header.clientHeight,
                 titles = $('#post-content').querySelectorAll('h1, h2, h3, h4, h5, h6');
 
-            toc.querySelector('a[href="#' + titles[0].id + '"]').parentNode.classList.add('active');
+            // TOC href 被 hexo 做了 URL encode，而 titles[i].id 是未编码的原始 slug。
+            // 拼 selector 时把 id 也 encode 一下；匹配不上就 null-safety 跳过。
+            function tocAnchorById(id) {
+                var enc = encodeURIComponent(id).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return toc.querySelector('a[href="#' + enc + '"]') ||
+                       toc.querySelector('a[href="#' + id + '"]');
+            }
+
+            var firstAnchor = tocAnchorById(titles[0].id);
+            if (firstAnchor) firstAnchor.parentNode.classList.add('active');
 
             // Make every child shrink initially
             var tocChilds = toc.querySelectorAll('.post-toc-child');
             for (i = 0, len = tocChilds.length; i < len; i++) {
                 tocChilds[i].classList.add('post-toc-shrink');
             }
-            var firstChild =
-                toc.querySelector('a[href="#' + titles[0].id + '"]')
-                    .nextElementSibling;
+            var firstChildAnchor = tocAnchorById(titles[0].id);
+            var firstChild = firstChildAnchor ? firstChildAnchor.nextElementSibling : null;
             if (firstChild) {
                 firstChild.classList.add('post-toc-expand');
                 firstChild.classList.remove('post-toc-shrink');
@@ -155,17 +163,16 @@
                     for (i = 0, len = titles.length; i < len; i++) {
                         if (top > offset(titles[i]).y - headerH - 5) {
                             var prevListEle = toc.querySelector('li.active');
-                            var currListEle = toc.querySelector('a[href="#' + titles[i].id + '"]').parentNode;
-
-                            handleTocActive(prevListEle, currListEle);
+                            var currAnchor = tocAnchorById(titles[i].id);
+                            if (!currAnchor) continue;
+                            handleTocActive(prevListEle, currAnchor.parentNode);
                         }
                     }
 
                     if (top < offset(titles[0]).y) {
-                        handleTocActive(
-                            toc.querySelector('li.active'),
-                            toc.querySelector('a[href="#' + titles[0].id + '"]').parentNode
-                        );
+                        var prev = toc.querySelector('li.active');
+                        var fallbackAnchor = tocAnchorById(titles[0].id);
+                        if (fallbackAnchor) handleTocActive(prev, fallbackAnchor.parentNode);
                     }
                 }
             }
@@ -446,17 +453,19 @@
     };
 
     w.addEventListener('load', function () {
-        loading.classList.remove('active');
-        Blog.page.loaded();
-        w.lazyScripts && w.lazyScripts.length && Blog.loadScript(w.lazyScripts)
+        try { loading.classList.remove('active'); } catch (e) { console.error('[main.js load] loading:', e); }
+        try { Blog.page.loaded(); } catch (e) { console.error('[main.js load] loaded:', e); }
+        try { w.lazyScripts && w.lazyScripts.length && Blog.loadScript(w.lazyScripts) } catch (e) { console.error('[main.js load] lazyScripts:', e); }
     });
 
     w.addEventListener('DOMContentLoaded', function () {
-        Blog.waterfall();
-        var top = rootScollTop();
-        Blog.toc.fixed(top);
-        Blog.toc.actived(top);
-        Blog.page.loaded();
+        try {
+            Blog.waterfall();
+            var top = rootScollTop();
+            Blog.toc.fixed(top);
+            Blog.toc.actived(top);
+            Blog.page.loaded();
+        } catch (e) { console.error('[main.js DOMContentLoaded]', e); }
     });
 
     var ignoreUnload = false;
