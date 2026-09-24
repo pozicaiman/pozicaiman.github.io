@@ -211,31 +211,61 @@
             this.$off && this.$off.addEventListener(even, this.hide);
         },
         share: function () {
+            // 复制当前页 URL 到剪贴板，替代原来的 SNS 弹窗
+            var shareTargets = [];
+            var menuBtn = $('#menuShare');
+            var fabBtn = $('#shareFab');
+            if (menuBtn) shareTargets.push(menuBtn);
+            if (fabBtn) shareTargets.push(fabBtn);
 
-            var pageShare = $('#pageShare'),
-                fab = $('#shareFab');
+            function copyUrl(btn) {
+                var url = window.location.href;
+                var hasClipboard = !!(navigator.clipboard && navigator.clipboard.writeText);
+                if (hasClipboard) {
+                    try {
+                        navigator.clipboard.writeText(url).then(function () {
+                            flash(btn, '已复制链接');
+                        }, function () {
+                            flash(btn, '复制失败');
+                        });
+                        return;
+                    } catch (e) {
+                        // Clipboard API 不可用（非 HTTPS、不兼容环境），回退
+                    }
+                }
 
-            var shareModal = new this.modal('#globalShare');
-
-            $('#menuShare').addEventListener(even, shareModal.toggle);
-
-            if (fab) {
-                fab.addEventListener(even, function () {
-                    pageShare.classList.toggle('in')
-                }, false)
-
-                d.addEventListener(even, function (e) {
-                    !fab.contains(e.target) && pageShare.classList.remove('in')
-                }, false)
+                // 老浏览器 / 非 HTTPS 兜底
+                try {
+                    var ta = d.createElement('textarea');
+                    ta.value = url;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    body.removeChild(ta);
+                    flash(btn, '已复制链接');
+                } catch (err) {
+                    flash(btn, '复制失败');
+                }
             }
 
-            var wxModal = new this.modal('#wxShare');
-            wxModal.onHide = shareModal.hide;
+            function flash(btn, text) {
+                if (!btn) return;
+                var orig = btn.getAttribute('data-title') || '';
+                btn.setAttribute('data-title', text);
+                btn.classList.add('copy-flash');
+                setTimeout(function () {
+                    btn.setAttribute('data-title', orig);
+                    btn.classList.remove('copy-flash');
+                }, 1500);
+            }
 
-            forEach.call($$('.wxFab'), function (el) {
-                el.addEventListener(even, wxModal.toggle)
-            })
-
+            shareTargets.forEach(function (btn) {
+                btn.addEventListener(even, function () {
+                    copyUrl(btn);
+                });
+            });
         },
         search: function () {
             var searchWrap = $('#search-wrap');
